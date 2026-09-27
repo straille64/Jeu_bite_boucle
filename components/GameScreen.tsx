@@ -62,6 +62,7 @@ export default function GameScreen({ state, emit, react, bursts }: Props) {
             <p className="chip">{roundLabel}</p>
             <MediaUploader
               done={Boolean(state.upload?.youUploaded)}
+              maxMb={state.maxUploadMb}
               onUploaded={(m) => emit('media:submit', m)}
             />
           </PhaseShell>

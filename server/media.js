@@ -10,7 +10,7 @@ const path = require('path');
  * statiques au moment du build — un média uploadé ensuite renverrait 404.
  * On les sert donc ici, avant de passer la main à Next.
  */
-const UPLOAD_DIR = path.join(process.cwd(), '.data', 'uploads');
+const { UPLOAD_DIR } = require('./storage');
 
 const TYPES = {
   '.jpg': 'image/jpeg',

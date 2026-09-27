@@ -35,6 +35,8 @@ export interface RoomState {
   minPlayers: number;
   maxPlayers: number;
   maxCaption: number;
+  /** Taille max d'un média, en Mo (fixée par le serveur). */
+  maxUploadMb: number;
 
   upload?: {
     youUploaded: boolean;

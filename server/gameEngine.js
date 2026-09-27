@@ -568,6 +568,7 @@ function viewFor(room, viewerId) {
     minPlayers: LIMITS.MIN_PLAYERS,
     maxPlayers: LIMITS.MAX_PLAYERS,
     maxCaption: LIMITS.MAX_CAPTION,
+    maxUploadMb: Math.round(require('./storage').MAX_UPLOAD_BYTES / (1024 * 1024)),
   };
 
   if (room.phase === PHASE.UPLOAD) {

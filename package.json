@@ -6,7 +6,10 @@
     "dev": "node server.js",
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "tunnel": "cloudflared tunnel --url http://localhost:3000",
+    "test": "node scripts/simulate.js",
+    "test:e2e": "node scripts/e2e.js"
   },
   "dependencies": {
     "framer-motion": "^11.3.19",

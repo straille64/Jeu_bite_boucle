@@ -3,10 +3,14 @@ import { randomBytes } from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 
+// Garde-fous disque partagés avec le serveur (voir server/storage.js).
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const storage = require('@/server/storage') as typeof import('@/server/storage');
+
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_BYTES = storage.MAX_UPLOAD_BYTES;
 
 const ACCEPTED: Record<string, { kind: string; ext: string }> = {
   'image/jpeg': { kind: 'image', ext: 'jpg' },
@@ -23,8 +27,7 @@ const ACCEPTED: Record<string, { kind: string; ext: string }> = {
   'audio/ogg': { kind: 'audio', ext: 'ogg' },
 };
 
-// Hors de `public/` : Next fige ses statiques au build (cf. server/media.js).
-const UPLOAD_DIR = path.join(process.cwd(), '.data', 'uploads');
+const UPLOAD_DIR = storage.UPLOAD_DIR;
 
 export async function POST(req: NextRequest) {
   let form: FormData;
@@ -45,6 +48,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: `Fichier trop lourd (max ${Math.round(MAX_BYTES / 1024 / 1024)} Mo).` },
       { status: 413 },
+    );
+  }
+  // Sur un hébergeur gratuit le disque est petit : on refuse proprement
+  // plutôt que de laisser le conteneur saturer.
+  if (!storage.hasRoomFor(file.size)) {
+    return NextResponse.json(
+      { error: 'Serveur saturé — réessaie dans quelques minutes.' },
+      { status: 507 },
     );
   }
 

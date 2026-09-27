@@ -5,7 +5,7 @@ const path = require('path');
 const E = require('./gameEngine');
 const { LIMITS } = require('./constants');
 
-const { UPLOAD_DIR } = require('./media');
+const { UPLOAD_DIR, sweepOld } = require('./storage');
 
 /** code -> room */
 const rooms = new Map();
@@ -56,6 +56,8 @@ function deleteUpload(url) {
 
 /** Purge les rooms inactives + les fichiers orphelins. */
 function sweep() {
+  // Filet de sécurité : fichiers qu'un crash aurait laissés derrière.
+  sweepOld(LIMITS.ROOM_TTL_MS);
   const now = Date.now();
   for (const [code, room] of rooms) {
     if (now - room.updatedAt > LIMITS.ROOM_TTL_MS || room.players.length === 0) {

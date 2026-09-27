@@ -11,6 +11,8 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
+Pour jouer avec des amis : **[HEBERGEMENT.md](HEBERGEMENT.md)** (gratuit, 2 minutes).
+
 ---
 
 ## 1. Architecture globale
@@ -242,25 +244,38 @@ la diffusion des réactions et l'absence de doublon à la resynchronisation.
 
 ---
 
-## 7. Déploiement
+## 7. Hébergement
+
+👉 **Guide pas-à-pas : [HEBERGEMENT.md](HEBERGEMENT.md)** — deux voies gratuites,
+tunnel Cloudflare (2 min, sans compte) ou Render (adresse permanente).
 
 Le serveur étant **avec état** (rooms en mémoire, WebSocket persistant), il lui
-faut un hébergement à process long : Railway, Render, Fly.io, ou un VPS.
+faut un hébergement à process long. Pas de serverless : Vercel et consorts
+découpent en fonctions sans état, les rooms seraient perdues entre deux requêtes
+et les WebSockets ne tiendraient pas.
 
 ```bash
 npm run build
 npm start          # PORT=8080 npm start pour changer de port
 ```
 
-Deux points à connaître avant de mettre en production :
+### Médias et disque
 
-- **Pas de déploiement serverless.** Vercel et consorts découpent en fonctions
-  sans état : les rooms seraient perdues entre deux requêtes et les WebSockets
-  ne tiendraient pas. C'est le compromis assumé de ce choix d'architecture.
-- **Un seul process.** Pour passer à plusieurs instances, il faudrait sortir
-  l'état des rooms vers Redis et ajouter un adaptateur Socket.io. En l'état, une
-  instance encaisse largement plusieurs dizaines de parties simultanées.
+Les médias sont servis par le jeu lui-même, sans service de stockage externe :
+ils sont **éphémères par nature** (supprimés avec leur room, dossier vidé au
+démarrage), donc aucun stockage persistant n'est nécessaire — c'est ce qui
+permet de rester entièrement gratuit.
 
-Les médias vivent dans `.data/uploads/` et sont supprimés avec leur room. Sur un
-hébergeur à disque éphémère, monter un volume persistant — ou brancher un
-stockage objet dans `app/api/upload/route.ts`.
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `PORT` | 3000 | Port d'écoute |
+| `MAX_UPLOAD_MB` | 15 | Taille max d'un média (`413` au-delà) |
+| `DISK_QUOTA_MB` | 400 | Budget disque total (`507` une fois atteint) |
+
+`GET /api/health` renvoie l'état du service et l'occupation disque.
+
+### Monter en charge
+
+Un seul process suffit pour plusieurs dizaines de parties simultanées. Pour
+passer à plusieurs instances, il faudrait sortir l'état des rooms vers Redis et
+ajouter un adaptateur Socket.io.

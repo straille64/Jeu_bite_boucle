@@ -9,10 +9,12 @@ import MediaPlayer from './MediaPlayer';
 interface Props {
   onUploaded: (media: { url: string; kind: MediaKind; name: string }) => void;
   done: boolean;
+  /** Limite annoncée par le serveur, configurable via MAX_UPLOAD_MB. */
+  maxMb: number;
 }
 
 /** Sélection + upload du média du round, avec preview locale avant envoi. */
-export default function MediaUploader({ onUploaded, done }: Props) {
+export default function MediaUploader({ onUploaded, done, maxMb }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<{ url: string; kind: MediaKind } | null>(null);
   const [pct, setPct] = useState<number | null>(null);
@@ -94,7 +96,7 @@ export default function MediaUploader({ onUploaded, done }: Props) {
             Photo, GIF, vidéo ou audio. Le plus absurde possible — ce sont les autres qui devront
             le légender.
           </span>
-          <span className="chip mt-1">JPG · PNG · WebP · GIF · MP4 · MP3 · WAV — 25 Mo max</span>
+          <span className="chip mt-1">JPG · PNG · WebP · GIF · MP4 · MP3 · WAV — {maxMb} Mo max</span>
         </motion.button>
       )}
 

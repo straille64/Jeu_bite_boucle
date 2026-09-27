@@ -1,0 +1,19 @@
+# Déploiement Render en un clic (offre gratuite).
+# Le disque est éphémère : c'est sans conséquence ici, les médias ne
+# servent que le temps d'une partie (voir server/storage.js).
+services:
+  - type: web
+    name: caption-battle
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MAX_UPLOAD_MB
+        value: "12"
+      - key: DISK_QUOTA_MB
+        value: "300"
